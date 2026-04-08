@@ -69,16 +69,14 @@
     host_networks: ['none']
   when: host_networks | length == 0
 
-- name: Initialize networks with the first host's networks
+- name: Initialize networks with first host entry
   set_fact:
-    networks: "{{ host_networks | first }}"
+    networks: "{{ host_networks | first | default([]) }}"
 
-- name: Find common networks across all hosts
+- name: Intersect remaining host networks
   set_fact:
-    networks: "{{ networks | intersect(host_networks[item]) }}"
-  loop: "{{ range(1, host_networks | length) }}"
-  loop_control:
-    index_var: item
+    networks: "{{ networks | intersect(item) }}"
+  loop: "{{ host_networks[1:] }}"
 
 - name: Debug - Print networks
   debug:
